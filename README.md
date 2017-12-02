@@ -1,4 +1,4 @@
-# Building Twitter!
+# Building Sunny!
 
 
 Today we will be building a clone of the popular media website Twitter, using your knowledge of MongoDB queries, processing, and performance. Yay!
