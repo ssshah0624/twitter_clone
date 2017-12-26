@@ -22,18 +22,61 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Crypto - SS
+var crypto = require('crypto');
+function hashPassword(password){
+  var hash = crypto.createHash('sha256');
+  hash.update(password);
+  return hash.digest('hex');
+}
 
 // Passport stuff here
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 
 // Session info here
+app.use(session({ 
+  secret: 'sunny is da best', 
+  store: new MongoStore({mongooseConnection: require('mongoose').connection}),
+}));
 
 // Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Passport Serialize
+passport.serializeUser(function(user, done) {
+  done(null, user._id);
+});
 
 // Passport Deserialize
+passport.deserializeUser(function(id, done) {
+  models.User.findById(id, function(err,user){
+    done(err, user);
+  });
+});
 
 // Passport Strategy
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    console.log("USERNAME -> ",username);
+    models.User.findOne({email: username}, function(err, user){
+      if(user){
+        console.log("USER -> ",user);
+        console.log("Local strategy: ",user.password);
+        if(user && user.password === hashPassword(password)){
+          console.log("What up fam: ", user);
+          done(null, user);
+        }else{
+          done(null,false);
+        }
+      }else{
+        done(null,false);
+      }
+   });
+  }
+));
+
 
 app.use('/', auth(passport));
 app.use('/', routes);

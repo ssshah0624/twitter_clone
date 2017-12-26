@@ -31,22 +31,76 @@ var userSchema = mongoose.Schema({
   /* Add other fields here */
 });
 
-userSchema.methods.getFollows = function (callback){
-
+//For get all users - SS
+userSchema.methods.getUsers = function(callback){
+  User.find({}).exec(function(err, users){
+    callback(false, users);
+  });
 }
-userSchema.methods.follow = function (idToFollow, callback){
 
+userSchema.methods.getFollows = function (callback){
+  Follow.find({follower: this._id}).populate('following').exec(function(err, peopleImFollowing){
+    Follow.find({following: this._id}).populate('follower').exec(function(err, peopleFollowingMe){
+      callback(false, peopleImFollowing, peopleFollowingMe);
+    }.bind(this))
+  }.bind(this))
+}
+
+
+userSchema.methods.follow = function (idToFollow, callback){
+  // console.log("I am ", this._id, " and I want to follow ", idToFollow);
+  var loggedInUserId = this._id;
+  Follow.find({follower:loggedInUserId, following:idToFollow}, function(err, found){
+    if(err){
+      console.log("Error in .follow:", err)
+      callback(false,false);
+    }else if(found.length===0){
+      var followDoc = new Follow({follower:loggedInUserId, following:idToFollow});
+      followDoc.save(function(err){
+        if(err){
+          console.log("Could not save new Follow Doc!");
+        }else{
+          console.log("Successfully saved Follow doc! Check it out")
+        }
+      });
+      callback(false,true);
+    }else{
+      console.log("Could not follow because...this relationship exists!");
+      callback(false,false);
+    }
+  });
 }
 
 userSchema.methods.unfollow = function (idToUnfollow, callback){
-
+  var loggedInUserId = this._id;
+  Follow.find({follower:loggedInUserId, following:idToUnfollow}, function(err, found){
+    if(err){
+      console.log("Error in .unfollow", err);
+      callback(false, false);
+    }else if(found.length===0){
+      console.log("Could not unfollow because...there is no relationship to begin with");
+      callback(false,false);
+    }else{
+      Follow.find({follower:loggedInUserId, following:idToUnfollow}).remove().exec();
+      console.log("Unfollowed!");
+      callback(false, true);
+    }
+  });
 }
+
 userSchema.methods.getTweets = function (callback){
 
 }
 
 var FollowsSchema = mongoose.Schema({
-
+  follower:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'User'
+  },
+  following:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'User'
+  }
 });
 
 

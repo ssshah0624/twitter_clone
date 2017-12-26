@@ -1,25 +1,40 @@
 <h4>Name:</h4>
 <p>{{user.displayName}}</p>
 
+<!-- A spot to load your profile image, given the image in your User model. -->
+<img src={{user.imgUrl}} alt="Look how handsome I am">
+
 <h4>Email:</h4>
 <p>{{user.email}}</p>
 
 <h4>Biography:</h4>
 <p>{{user.bio}}</p>
 
+<!-- A container which will hold and display tweets that belong to you We will be using this later. -->
 <h4>Tweets:</h4>
 <p>{{user.tweets}}</p>
 
+
+<!--  A container which is hold and display the number of people that you follow We will be using this later. -->
 <h4>Following:</h4>
-{{#each followings}}
-  <div>{{this.following.displayName}}
-  <form  action="/unfollow/{{this.to._id}}" method="post">
-    <input style="display: inline;" type="submit" value="Unfollow">
-  </form>
-</div>
+{{#each following}}
+	{{this.following.displayName}}
 {{/each}}
 
+<!-- A container which is hold and display the number of people that follow you We will be using this later. -->
 <h4>Followers:</h4>
 {{#each followers}}
-  <p>{{this.follower.displayName}}</p>
+	{{this.follower.displayName}}
 {{/each}}
+
+
+<!-- A nonfunctional button which a user will click when they want to follow you. (Will be implemented later) -->
+  <form  action="/follow/{{user._id}}" method="post">
+    <input style="display: inline;" type="submit" value="Follow">
+  </form>
+
+  <form  action="/unfollow/{{user._id}}" method="post">
+    <input style="display: inline;" type="submit" value="Unfollow">
+  </form>
+
+<a href="/users/">See all users</a>

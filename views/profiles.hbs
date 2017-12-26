@@ -1,1 +1,9 @@
-{{! YOUR CODE HERE }}
+<h1>Users:</h1>
+
+<ul>
+{{#each users}}
+	<li><a href="/users/{{this._id}}">{{this.displayName}}</a></li>
+{{/each}}
+</ul>
+
+<a href="/">Return to your profile</a>

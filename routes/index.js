@@ -15,19 +15,60 @@ router.use(function(req, res, next){
 });
 
 router.get('/', function(req, res) {
-  res.send("Success! You are logged in.");
+  // res.send("Success! You are logged in.");
+
+  req.user.getFollows(function(err, following, followers){
+    res.render('singleProfile',{user: req.user, following: following, followers: followers});
+  });
+
+  // res.render('singleProfile',{user: req.user});
 });
 
 router.get('/users/', function(req, res, next) {
-
-  // Gets all users
-
+  req.user.getUsers(function(err, users){
+    res.render('profiles',{users: users});
+  })
 });
 
 router.get('/users/:userId', function(req, res, next) {
-
   // Gets all information about a single user
+  var userId = req.params.userId;
+  var user = User.findById(userId, function(err,user){
+    res.render('singleProfile',{user: user});
+  });
+});
 
+//SS- handle user follow requests
+router.post('/follow/:userid', function(req, res, next){
+    req.user.follow(req.params.userid, function(err, result){
+      if(err){
+        console.log(err);
+      }else{
+        console.log(result);
+        if(result){
+          console.log("Follow doc created!");
+        }else{
+          console.log("Follow doc not created :(");
+        }
+      }
+    });
+  res.redirect('/users/'+req.params.userid);
+});
+
+router.post('/unfollow/:userid', function(req, res, next){
+    req.user.unfollow(req.params.userid, function(err, result){
+      if(err){
+        console.log(err);
+      }else{
+        console.log(result);
+        if(result){
+          console.log("Unfollow doc created!");
+        }else{
+          console.log("Unfollow doc not created :(");
+        }
+      }
+    });
+  res.redirect('/users/'+req.params.userid);
 });
 
 router.get('/tweets/', function(req, res, next) {
