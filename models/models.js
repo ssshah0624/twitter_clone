@@ -89,7 +89,9 @@ userSchema.methods.unfollow = function (idToUnfollow, callback){
 }
 
 userSchema.methods.getTweets = function (callback){
-
+  Tweet.find({author: this._id}).exec(function(err, tweets){
+    callback(false, tweets);
+  });
 }
 
 var FollowsSchema = mongoose.Schema({
@@ -103,9 +105,30 @@ var FollowsSchema = mongoose.Schema({
   }
 });
 
+userSchema.methods.newTweet = function (author, content, callback){
+  var tweet = new Tweet({author: author, content: content});
+  tweet.save(function(err){
+      if(err){
+        console.log("Could not save new tweet");
+        callback(false, false);
+      }else{
+        console.log("Successfully saved tweet!")
+        callback(false, true);
+      }
+    });
+}
+
 
 var tweetSchema = mongoose.Schema({
-
+  author:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'User'
+  },
+  content:{
+    type: String,
+    maxLength: 140,
+    required: true
+  }
 });
 
 tweetSchema.methods.numLikes = function (tweetId, callback){

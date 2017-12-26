@@ -72,14 +72,19 @@ router.post('/unfollow/:userid', function(req, res, next){
 });
 
 router.get('/tweets/', function(req, res, next) {
-
   // Displays all tweets in the DB
-
+  req.user.getTweets(function(err, tweets){
+    if(err){
+      console.log(err);
+    }else{
+      res.render('tweets',{user: req.user, tweets: tweets});
+    }
+  });
 });
 
 router.get('/tweets/:tweetId', function(req, res, next) {
-
   //Get all information about a single tweet
+  if(req.params.tweetId === "new") return next();
 
 });
 
@@ -96,16 +101,22 @@ router.post('/tweets/:tweetId/likes', function(req, res, next) {
 });
 
 router.get('/tweets/new', function(req, res, next) {
-
-  //Display the form to fill out for a new tweet
-
+  res.render('newTweet');
 });
 
 router.post('/tweets/new', function(req, res, next) {
-
   // Handle submission of new tweet form, should add tweet to DB
-
-
+  var content = req.body.newtweet
+  var author = req.user
+  req.user.newTweet(author, content, function(err, done){
+    if(err){
+      console.log(err);
+    }else{
+      if(done){
+        res.redirect('/')
+      }
+    }
+  })
 });
 
 module.exports = router;
